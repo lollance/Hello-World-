@@ -7,7 +7,7 @@ baudrate_list = [50, 75, 110, 134, 150, 200, 300, 600, 1200, 1800, 2400, 4800, 9
 
 class serial_mod():
 
-    def __init__(self, port_Num):
+    def __init__(self):
         self.port = "com6"
         self.baudrate = 115200
         self.method = "both"
@@ -29,17 +29,59 @@ class serial_mod():
             print "no output on console and log file."
             self.method = "no"
         elif method == "both":
+            print "display serial log on console and log in log file" + self.location + "\\" + self.log_file
             self.method = "both"
         else:
             print "Enter currect method: 'console', 'log' or 'both'"
 
-    def find(self):
-        ser = serial.Serial(self.port, baudrate = self.baudrate)
-        try:
-            ser.isOpen()
-            print("serial port com", sys.argv[1])
-        except:
-            print("can't open serial port.")
+    def console_(self, ser):
+        while(ser.isOpen()):
+            while 1:
+                bytes = ser.readline()
+                print bytes
+                for temp in self.target:
+                    if temp in bytes:
+                        print "find " + temp
+                        ser.close()
+                        break
+
+    def no_(self,ser):
+        while(ser.isOpen()):
+            while 1:
+                bytes = ser.readline()
+                for temp in self.target:
+                    if temp in bytes:
+                        print "find " + temp
+                        ser.close()
+                        break
+
+    def both_(self,ser):
+        log_fp = open(self.location +"\\"+ self.log_file ,"a")
+        while(ser.isOpen()):
+            while 1:
+                bytes = ser.readline()
+                print bytes
+                log_fp.write(bytes)
+                for temp in self.target:
+                    if temp in bytes:
+                        print "find " + temp
+                        ser.close()
+                        log_fp.close()
+                        break
+
+    def log_(self, ser):
+        log_fp = open(self.location + "\\" + self.log_file, "a")
+        while(ser.isOpen()):
+            while 1:
+                bytes = ser.readline()
+                print bytes
+                log_fp.write(bytes)
+                for temp in self.target:
+                    if temp in bytes:
+                        print "find " + temp
+                        ser.close()
+                        log_fp.close()
+                        break
 
     def read_keyword(self):
         try:
@@ -67,5 +109,28 @@ class serial_mod():
     def help(self):
         print "This class is for serial log display on console or log to file"
 
+    def find(self):
+        ser = serial.Serial(self.port, baudrate=self.baudrate)
+        try:
+            ser.isOpen()
+            print("serial port com", sys.argv[1])
+        except:
+            print("can't open serial port.")
+        if self.op_mode == "console":
+            self.console_(ser)
+        elif self.op_mode == "no":
+            self.no_(ser)
+        elif self.op_mode == "both":
+            self.both_(ser)
+        elif self.op_mode == "log":
+            self.log_(ser)
+
+    def show_settings(self):
+        print "port : " + self.port 
+        print "baudrate : " + self.baudrate 
+        print "method : " + self.method 
+        print "save location : " + self.location + "\\" + self.log_file
+        print "find : " + self.target
+
 if __name__ == "__main__":
-    print("alone")
+    print "test"
